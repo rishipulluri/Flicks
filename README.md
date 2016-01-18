@@ -30,7 +30,7 @@ The following **additional** features are implemented:
 
 ## Notes
 
-Could not figure out how to do the search bar and could not
+Could not figure out how to do the search bar.
 
 ## License
 
