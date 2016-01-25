@@ -13,16 +13,40 @@ import EZLoadingActivity
 
 
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate,UISearchBarDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
     
-    
-    var refreshControl:UIRefreshControl!
+   
+
+    @IBOutlet weak var collectionView: UICollectionView!
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var switch1: UISwitch!
+    
+    var refreshControl:UIRefreshControl!
+      var filteredData: [NSDictionary]?
+
+    @IBOutlet weak var searchoutlet: UISearchBar!
+    var movieTitle:[String] = []
     
     var movies : [NSDictionary]?
+    
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        EZLoadingActivity.showWithDelay("Waiting", disableUI: true, seconds: 2)
+        
+
+        tableView.hidden = true
+        navigationController!.navigationBar.barTintColor = UIColor.blackColor()
+        navigationController!.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.blueColor()]
+        
+         self.title = "MovieViewer"
+
+        
+
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = NSURL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
@@ -44,10 +68,12 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                             NSLog("response: \(responseDictionary)")
                             
                             print(responseDictionary)
-                            self.movies = responseDictionary["results"] as! [NSDictionary]
-                            
+                            self.movies = responseDictionary["results"] as? [NSDictionary]
+                            self.filteredData = self.movies
+
                             self.tableView.reloadData()
-                            
+                            self.collectionView.reloadData()
+
                     }
                 }
         });
@@ -58,16 +84,17 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.insertSubview(refreshControl, atIndex: 0)
 
     }
+  
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    public func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    internal func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
-        if let movies = movies
+        if let movies = filteredData
         {
-            return movies.count
+            return filteredData!.count
 
         }
         else
@@ -76,20 +103,22 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         }
     }
     
-    public func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    internal func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
         let cell = tableView.dequeueReusableCellWithIdentifier("MovieCell", forIndexPath: indexPath) as! MovieCell
         let baseUrl = "http://image.tmdb.org/t/p/w500"
         
-        let movie = movies![indexPath.row]
+        let movie = filteredData![indexPath.row]
         let posterpath = movie["poster_path"] as! String
         let imageUrl = NSURL(string: baseUrl + posterpath)
         
 
+        
         let title = movie["title"] as! String
+        
         cell.imagenew.setImageWithURL(imageUrl!)
-        cell.titlelabel.text = movie["title"] as! String
-        cell.overviewlabel.text = movie["overview"] as! String
+        cell.titlelabel.text = movie["title"] as? String
+        cell.overviewlabel.text = movie["overview"] as? String
         
 
         return cell
@@ -110,9 +139,156 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         })
     }
     
-   override func viewDidAppear(animated: Bool) {
-    EZLoadingActivity.showWithDelay("Waiting", disableUI: true, seconds: 2)
     
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        if let movies = filteredData {
+            return filteredData!.count
+        } else {
+            
+            return 0
+        }
+        
+    }
+
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell
+    {
+        
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("collectioncell", forIndexPath: indexPath) as! CollectionViewCell2
+        
+        
+        let movie = filteredData![indexPath.row]
+        let title = movie["title"] as! String
+        
+        let baseURL = "http://image.tmdb.org/t/p/w500/"
+        
+        if let posterPath = movie["poster_path"] as? String {
+            
+            let imageURL = NSURL(string: baseURL + posterPath)
+            
+            let imageRequest = NSURLRequest(URL: imageURL!)
+            cell.imagenuevo.setImageWithURLRequest(imageRequest, placeholderImage: nil, success: { (imageRequest, imageResponse, image) -> Void in
+                if imageResponse != nil {
+                    print("image was NOT cached, fade in")
+                    cell.imagenuevo.alpha = 0.0
+                    cell.imagenuevo.image = image
+                    UIView.animateWithDuration(0.7, animations: { () -> Void in
+                        cell.imagenuevo.alpha = 1.0
+                    })
+                } else {
+                    print ("image was cached")
+                    cell.imagenuevo.image = image
+                }
+                },
+                failure: { (imageRequest, imageResponse, error) -> Void in
+            })
+        }
+        
+        
+        
+        print("row \(indexPath.row)")
+        
+        return cell
+        
+        
+    }
+    
+    
+    
+    
+    @IBAction func switchact(sender: UISwitch) {
+        if switch1.on {
+            tableView.hidden = true
+            collectionView.hidden = false
+            collectionView.addSubview(refreshControl)
+        } else {
+            tableView.hidden = false
+            collectionView.hidden = true
+            tableView.addSubview(refreshControl)
+        }
+    }
+    
+            
+    
+   override func viewDidAppear(animated: Bool) {
+        }
+    
+    
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        filteredData = searchText.isEmpty ? movies : movies!.filter({(movie: NSDictionary) -> Bool in
+            
+            let title = movie["title"] as! String
+            let overview = movie["overview"] as! String
+
+            
+            return title.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil || overview.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
+        })
+        
+        tableView.reloadData()
+        collectionView.reloadData()
+        
+    }
+    
+   
+   
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        view.endEditing(true)
+        
+    }
+    
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        self.searchoutlet.showsCancelButton = true
+    }
+    
+    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
+        view.endEditing(true)
+        filteredData = movies
+        searchBar.text = nil
+        tableView.reloadData()
+        collectionView.reloadData()
+        
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        if  tableView.hidden == false
+        {
+            let cell = sender as! UITableViewCell
+          let  indexpath = tableView.indexPathForCell(cell)
+          let  movie = movies![indexpath!.row]
+            let detailViewController = segue.destinationViewController as! DetailedViewController
+        detailViewController.Movie = movie
+        }
+        else
+        {
+            let cell = sender as! UICollectionViewCell
+            let indexPath = collectionView.indexPathForCell(cell)
+            let movie = movies![indexPath!.row]
+            
+            let detailViewController = segue.destinationViewController as! DetailedViewController
+            detailViewController.Movie = movie
+        }
+        
+    }
+    
+   /** let totalColors: Int = 100
+    func colorForIndexPath(indexPath: NSIndexPath) -> UIColor {
+        if indexPath.row >= totalColors {
+            return UIColor.blackColor()	// return black if we get an unexpected row index
+        }
+        
+        var hueValue: CGFloat = CGFloat(indexPath.row) / CGFloat(totalColors)
+        return UIColor(hue: hueValue, saturation: 1.0, brightness: 1.0, alpha: 1.0)
+    }
+    */
+    
+   /** func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredData = searchText.isEmpty ? data : data.filter({(dataString: String) -> Bool in
+            return dataString.rangeOfString(searchText, options: .CaseInsensitiveSearch) != nil
+        })
+        
+        tableView.reloadData()
     }
     
 
@@ -125,4 +301,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         // Pass the selected object to the new view controller.
     }
     */
+}
+*/
 }
