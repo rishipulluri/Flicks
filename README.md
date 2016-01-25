@@ -3,7 +3,7 @@
 
 **MovieViewer** is a movies app using the [The Movie Database API](http://docs.themoviedb.apiary.io/#).
 
-Time spent: **4** hours spent in total
+Time spent: **15** hours spent in total
 
 ## User Stories
 
@@ -17,20 +17,28 @@ The following **required** functionality is complete:
 The following **optional** features are implemented:
 
 - [ ] User sees an error message when there's a networking error.
-- [ ] Movies are displayed using a CollectionView instead of a TableView.
-- [ ] User can search for a movie.
-- [ ] All images fade in as they are loading.
-- [ ] Customize the UI.
+- [x] Movies are displayed using a CollectionView instead of a TableView.
+- [x] User can search for a movie.
+- [x] All images fade in as they are loading.
+- [x] Customize the UI.
 
 The following **additional** features are implemented:
+- Implemented Uiswitch to navigate between collectionview and tableview
+- [x] List anything else that you can get done to improve the app functionality!
 
-- [ ] List anything else that you can get done to improve the app functionality!
+## Video Walkthrough 
+
+
+Here's a walkthrough of implemented user stories:
+![Imgur](http://i.imgur.com/d7MOdmG.gifv)
+- link - http://imgur.com/d7MOdmG
 
 
 
 ## Notes
+- For some reason imgur could not process the video, but here is the link to the videowalthrough
+- http://imgur.com/d7MOdmG
 
-Could not figure out how to do the search bar.
 
 ## License
 
