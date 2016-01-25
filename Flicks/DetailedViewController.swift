@@ -23,9 +23,11 @@ class DetailedViewController: UIViewController {
         let overview = Movie!["overview"]
         overviewLabel.text = overview as? String
         let baseUrl = "http://image.tmdb.org/t/p/w500"
-        let posterpath = Movie!["poster_path"] as! String
+       if let posterpath = Movie!["poster_path"] as? String
+       {
         let imageUrl = NSURL(string: baseUrl + posterpath)
         newimage.setImageWithURL(imageUrl!)
+        }
         
         
         

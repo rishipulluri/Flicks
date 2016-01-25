@@ -109,14 +109,17 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let baseUrl = "http://image.tmdb.org/t/p/w500"
         
         let movie = filteredData![indexPath.row]
-        let posterpath = movie["poster_path"] as! String
+        if let posterpath = movie["poster_path"] as? String
+        {
         let imageUrl = NSURL(string: baseUrl + posterpath)
+        cell.imagenew.setImageWithURL(imageUrl!)
+
+        }
         
 
         
         let title = movie["title"] as! String
         
-        cell.imagenew.setImageWithURL(imageUrl!)
         cell.titlelabel.text = movie["title"] as? String
         cell.overviewlabel.text = movie["overview"] as? String
         
