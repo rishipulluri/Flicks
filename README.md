@@ -13,6 +13,9 @@ The following **required** functionality is complete:
 - [x] Poster images are loaded using the UIImageView category in the AFNetworking library.
 - [x] User sees a loading state while waiting for the movies API.
 - [x] User can pull to refresh the movie list.
+- [x] User can view movie details by tapping on a cell.
+- [x] User can select from a tab bar for either Now Playing or Top Rated movies.
+- [x] Customize the selection effect of the cell.
 
 The following **optional** features are implemented:
 
@@ -23,21 +26,20 @@ The following **optional** features are implemented:
 - [x] Customize the UI.
 
 The following **additional** features are implemented:
-- Implemented Uiswitch to navigate between collectionview and tableview
+- [x] Implemented Uiswitch to navigate between collectionview and tableview
 - [x] List anything else that you can get done to improve the app functionality!
 
 ## Video Walkthrough 
 
 
 Here's a walkthrough of implemented user stories:
-![Imgur](http://i.imgur.com/d7MOdmG.gifv)
-- link - http://imgur.com/d7MOdmG
+- link - http://imgur.com/2ZOo61q
 
 
 
 ## Notes
 - For some reason imgur could not process the video, but here is the link to the videowalthrough
-- http://imgur.com/d7MOdmG
+- http://imgur.com/2ZOo61q
 
 
 ## License
