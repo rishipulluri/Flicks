@@ -29,6 +29,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     var movieTitle:[String] = []
     
     var movies : [NSDictionary]?
+    var endpoint : String!
     
     
     
@@ -43,13 +44,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         navigationController!.navigationBar.barTintColor = UIColor.blackColor()
         navigationController!.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.blueColor()]
         
-         self.title = "MovieViewer"
+         self.navigationItem.title = "MovieViewer"
 
         
 
         
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = NSURL(string:"https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
+        let url = NSURL(string:"https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
         let request = NSURLRequest(URL: url!)
         let session = NSURLSession(
             configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
@@ -81,7 +82,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         
         refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: "onRefresh", forControlEvents: UIControlEvents.ValueChanged)
-        tableView.insertSubview(refreshControl, atIndex: 0)
+       // tableView.insertSubview(refreshControl, atIndex: 0)
+        tableView.addSubview(refreshControl)
 
     }
   
@@ -238,6 +240,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         view.endEditing(true)
         
+        
     }
     
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
@@ -259,15 +262,15 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         {
             let cell = sender as! UITableViewCell
           let  indexpath = tableView.indexPathForCell(cell)
-          let  movie = movies![indexpath!.row]
+          let  movie = filteredData![indexpath!.row]
             let detailViewController = segue.destinationViewController as! DetailedViewController
         detailViewController.Movie = movie
-        }
+        }       
         else
         {
             let cell = sender as! UICollectionViewCell
             let indexPath = collectionView.indexPathForCell(cell)
-            let movie = movies![indexPath!.row]
+            let movie = filteredData![indexPath!.row]
             
             let detailViewController = segue.destinationViewController as! DetailedViewController
             detailViewController.Movie = movie
